@@ -38,7 +38,7 @@
 
 *代码实现：*
 
-```C++
+```c++
 vector<int> twoSum(vector<int>& nums, int target) {
         unordered_map <int, int> num_map;
         int len = nums.size();
@@ -53,19 +53,50 @@ vector<int> twoSum(vector<int>& nums, int target) {
     }
 ```
 
+*心得：*
+
+​    哈希表在 **快速查找元素** 和 **统计元素频率** 上有着天然的优势。
 
 
 
+- #### 解法二：排序 + 双指针
 
 
 
+| 时间复杂度 | 空间复杂度 |          优点          |       缺点       |
+| :--------: | :--------: | :--------------------: | :--------------: |
+|  O(nlogn)  |    O(n)    | 若不返回下标，空间更小 | 时间长，代码复杂 |
 
+*代码实现：*
 
+```c++
+vector<int> twoSum(vector<int>& nums, int target) {
+        vector<pair<int, int>> saveIndex;
+        int len = nums.size();
+        for (int i = 0; i < len; ++i) {
+            saveIndex.emplace_back(nums[i], i);
+        }
+        sort(saveIndex.begin(), saveIndex.end());
+        int l = 0, r = len - 1;
+        while (l < r) {
+            int sum = saveIndex[l].first + saveIndex[r].first;
+            if (sum == target) {
+                return {saveIndex[l].second, saveIndex[r].second};
+            }
+            else if(sum < target) {
+                l++;
+            }
+            else {
+                r--;
+            }
+        }
+        return {};
+    }
+```
 
+*心得：*
 
-
-
-
+​    这也是一种经典的思路。但这里要返回下标，所以用pair保存了原数据的下标，内存上多了一点消耗，否则空间复杂度为O(1)。
 
 
 
