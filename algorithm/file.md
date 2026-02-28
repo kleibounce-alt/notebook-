@@ -100,3 +100,103 @@ vector<int> twoSum(vector<int>& nums, int target) {
 
 
 
+---
+
+## ==字母异位词分组==
+
+**难度指数：♥ ♥**
+
+
+
+**题目描述：**
+
+​    给你一个字符串数组，请你将 **字母异位词** 组合在一起。可以按任意顺序返回结果列表。
+
+**示例 1:**
+
+- ```
+  输入: strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+  
+  输出: [["bat"],["nat","tan"],["ate","eat","tea"]]
+  
+  解释：
+  
+  - 在 strs 中没有字符串可以通过重新排列来形成 "bat"。
+  - 字符串 "nat" 和 "tan" 是字母异位词，因为它们可以重新排列以形成彼此。
+  - 字符串 "ate" ，"eat" 和 "tea" 是字母异位词，因为它们可以重新排列以形成彼此。
+  ```
+
+
+
+- #### 解法一：哈希表 + 排序
+
+  
+
+| 时间复杂度 | 空间复杂度 |   优点   |    缺点    |
+| :--------: | :--------: | :------: | :--------: |
+| O(n*klogk) |   O(n*k)   | 通用性强 | 排序开销大 |
+
+*代码实现：*
+
+```c++
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<string, vector<string>> wordMap;
+        for (auto& s : strs) {
+            string key = s;
+            sort(key.begin(), key.end());
+            wordMap[key].push_back(s);
+        }
+        vector<vector<string>> result;
+        for (auto it : wordMap) {
+            result.push_back(it.second);
+        }
+        return result;
+    }
+```
+
+*心得：*
+
+​    哈希表能处理各种字符集，通用性极强。但每次排key的时候都要排序一遍，比较耗时间。
+
+
+
+- #### 解法二：字符计数法
+
+
+
+| 时间复杂度 | 空间复杂度 |        优点        |          缺点          |
+| :--------: | :--------: | :----------------: | :--------------------: |
+|   O(n*k)   |   O(n*k)   | 数据很多时优于排序 | 数据少时慢且内存消耗大 |
+
+*代码实现：*
+
+```c++
+vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map <string, vector<string>> wordMap;
+        for (auto& s : strs) {
+            array<int, 26> count = {0};
+            string key = "";
+            for (auto c : s) {
+                count[c - 'a']++;
+            }
+            for (int i = 0; i < 26; ++i) {
+                key += to_string(count[i]) + '#';
+            }
+            wordMap[key].push_back(s);
+        }
+        vector<vector<string>> result;
+        for (auto& p : wordMap) {
+            result.push_back(p.second);
+        }
+        return result;
+    }
+```
+
+*心得：*
+
+​    本质上与排序法一样，都是想找一个特定的key，来对应一种字母异位词组。排序在字符串很长时sort要耗时间，在此情况下该方法占优。
+
+
+
+---
+
