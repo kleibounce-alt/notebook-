@@ -98,9 +98,11 @@ vector<int> twoSum(vector<int>& nums, int target) {
 
 ​    这也是一种经典的思路。但这里要返回下标，所以用pair保存了原数据的下标，内存上多了一点消耗，否则空间复杂度为O(1)。
 
-
+---
 
 ---
+
+
 
 ## ==字母异位词分组==
 
@@ -197,6 +199,8 @@ vector<vector<string>> groupAnagrams(vector<string>& strs) {
 ​    本质上与排序法一样，都是想找一个特定的key，来对应一种字母异位词组。排序在字符串很长时sort要耗时间，在此情况下该方法占优。
 
 
+
+---
 
 ---
 
