@@ -204,3 +204,171 @@ vector<vector<string>> groupAnagrams(vector<string>& strs) {
 
 ---
 
+## ==最长连续序列==
+
+**难度指数：♥ ♥** 
+
+
+
+**题目描述：**
+
+​    给定一个未排序的整数数组  **nums** ，找出数字连续的最长序列（<u>不要求序列元素在原数组中连续</u>）的长度。
+
+**示例 2：**
+
+```
+输入：nums = [0,3,7,2,5,8,4,6,0,1]
+输出：9
+```
+
+
+
+- #### 解法一：哈希集合
+
+
+
+| 时间复杂度 | 空间复杂度 |   优点   |     缺点     |
+| :--------: | :--------: | :------: | :----------: |
+|    O(n)    |    O(n)    | 简单直观 | 需要额外内存 |
+
+*代码实现：*
+
+```c++
+int longestConsecutive(vector<int>& nums) {
+        unordered_set<int> a(nums.begin(), nums.end());
+        int maxx = 0;
+        for (auto it : a) {
+            if (!a.count(it - 1)) {
+                int curNum = it;
+                int curLen = 1;
+                while (a.count(curNum + 1)) {
+                    curNum++;
+                    curLen++;
+                }
+                maxx = max(maxx, curLen);
+            }
+        }
+        return maxx;
+    }
+```
+
+*心得：*
+
+​    这题用set去重的性质以及哈希表的O(1)映射，能很高效率解决问题。
+
+
+
+- #### 解法二：哈希表记录区间边界
+
+
+
+| 时间复杂度 | 空间复杂度 |      优点      |   缺点   |
+| :--------: | :--------: | :------------: | :------: |
+|    O(n)    |    O(n)    | 可动态添加数据 | 逻辑复杂 |
+
+*代码实现：*
+
+```c++
+int longestConsecutive(vector<int>& nums) {
+        unordered_map<int, int> mp;
+        int maxx = 0;
+        for(auto& num : nums) {
+            if (!mp.count(num)) {
+                int l = mp.count(num - 1) ? mp[num - 1] : 0;
+                int r = mp.count(num + 1) ? mp[num + 1] : 0;
+                int len = l + r + 1;
+                mp[num] = len;
+                if (l > 0) mp[num - l] = len;
+                if (r > 0) mp[num + r] = len;
+                maxx = max(maxx, len);
+            }
+        }
+        return maxx;
+    }
+```
+
+*心得：*
+
+​    这个解法的有动态规划的思想。关键在两个if语句，帮助端点实时更新数据。
+
+
+
+---
+
+---
+
+## ==移动零==
+
+**难度指数：♥** 
+
+
+
+**题目描述：**
+
+​    给定一个数组 `nums`，编写一个函数将所有 `0` 移动到数组的末尾，同时保持非零元素的相对顺序。
+
+**请注意** ，<u>必须在不复制数组的情况下原地对数组进行操作</u>。
+
+**示例 1:**
+
+```
+输入: nums = [0,1,0,3,12]
+输出: [1,3,12,0,0]
+```
+
+
+
+- #### 解法一：双指针
+
+
+
+| 时间复杂度 | 空间复杂度 |  优点  |            缺点            |
+| :--------: | :--------: | :----: | :------------------------: |
+|    O(n)    |    O(1)    | 效率高 | 有自身交换的情况，有些浪费 |
+
+代码实现：
+
+```c++
+void moveZeroes(vector<int>& nums) {
+        for (int i = 0, j = 0; j < nums.size(); ++j) {
+            if (nums[j] != 0) {
+                swap(nums[i++], nums[j]);
+            }
+        }
+    }
+```
+
+*心得：*
+
+​    简单的双指针方法。
+
+
+
+- #### 解法二：STL方法
+
+
+
+| 时间复杂度 | 空间复杂度 |   优点   |            缺点            |
+| :--------: | :--------: | :------: | :------------------------: |
+|    O(n)    |   不确定   | 极其简洁 | 空间复杂度可能O(1)可能O(n) |
+
+*代码实现：*
+
+```c++
+void moveZeroes(vector<int>& nums) {
+        stable_partition(nums.begin(), nums.end(), [](int x) { return x != 0; });
+    }
+```
+
+*心得：*
+
+​    太冷门了，不适用。
+
+
+
+---
+
+---
+
+
+
