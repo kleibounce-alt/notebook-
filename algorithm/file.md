@@ -433,4 +433,365 @@ int maxArea(vector<int>& height) {
 
 ## ==三数之和==
 
-难度指数：
+**难度指数：♥ ♥ ♥**
+
+
+
+**题目描述：**
+
+​    给你一个整数数组 `nums` ，判断是否存在三元组 `[nums[i], nums[j], nums[k]]` 满足 `i != j`、`i != k` 且 `j != k` ，同时还满足 `nums[i] + nums[j] + nums[k] == 0` 。请你返回所有和为 **0** 且不重复的三元组。
+
+**注意：**答案中不可以包含重复的三元组。
+
+**示例 1：**
+
+```
+输入：nums = [-1,0,1,2,-1,-4]
+输出：[[-1,-1,2],[-1,0,1]]
+解释：
+nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0 。
+nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0 。
+nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0 。
+不同的三元组是 [-1,0,1] 和 [-1,-1,2] 。
+注意，输出的顺序和三元组的顺序并不重要。
+```
+
+
+
+- #### 解法一：排序 + 双指针
+
+
+
+| 时间复杂度 | 空间复杂度 |     优点     |   缺点   |
+| :--------: | :--------: | :----------: | :------: |
+|   O(n²)    |    O(1)    | 无需额外空间 | 不容易想 |
+
+*代码实现：*
+
+```c++
+vector<vector<int>> threeSum(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        vector<vector<int>> result;
+        for (int i = 0; i < nums.size() - 2; ++i) {
+            if (i > 0 && nums[i - 1] == nums[i]) continue;
+            int l = i + 1;
+            int r = nums.size() - 1;
+            while (l < r) {
+                if (nums[i] + nums[l] + nums[r] == 0) {
+                    result.push_back({nums[i], nums[l], nums[r]});
+                    while (l < r && nums[l] == nums[l + 1]) l++;
+                    while (l < r && nums[r] == nums[r - 1]) r--;
+                    r--;
+                    l++;
+                }
+                else if (nums[i] + nums[l] + nums[r] < 0) {
+                    l++;
+                }
+                else {
+                    r--;
+                }
+            }
+        }
+        return result;
+    }
+```
+
+*心得：*
+
+​    排序和双指针天生一对。排序不仅可以间接帮助去重，还为双指针铺垫。双循环的优势在于，外循环走过的路，内循环不必再走。
+
+
+
+- #### 解法二：排序 + 哈希表去重
+
+
+
+| 时间复杂度 | 空间复杂度 |   优点   |            缺点            |
+| :--------: | :--------: | :------: | :------------------------: |
+|   O(n²)    |    O(n)    | 容易想到 | 哈希额外需要内存，效率也低 |
+
+*代码实现：*
+
+```c++
+vector<vector<int>> threeSum(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        vector<vector<int>> result;
+        for (int i = 0; i < nums.size() - 2; ++i) {
+            if (i > 0 && nums[i - 1] == nums[i]) continue;
+            unordered_set <int> found;
+            for (int j = i + 1; j < nums.size(); ++j) {
+                int target = -nums[i] - nums[j];
+                if (found.count(target)) {
+                    result.push_back({nums[i], nums[j], target});
+                    while (j + 1 < nums.size() && nums[j] == nums[j + 1]) j++;
+                }
+                else {
+                    found.insert(nums[j]);
+                }
+            }
+        }
+        return result;
+    }
+```
+
+*心得：*
+
+​    类似于两数之和，自然好想。但其用时和内存消耗很大，不推荐。
+
+
+
+---
+
+---
+
+## ==接雨水==
+
+**难度指数：♥ ♥ ♥ ♥**
+
+
+
+**题目描述：**
+
+给定 `n` 个非负整数表示每个宽度为 `1` 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+
+ 
+
+**示例 1：**
+
+![img](https://assets.leetcode.cn/aliyun-lc-upload/uploads/2018/10/22/rainwatertrap.png)
+
+```
+输入：height = [0,1,0,2,1,0,1,3,2,1,2,1]
+输出：6
+解释：上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。 
+```
+
+
+
+- #### 解法一：暴力求解
+
+
+
+| 时间复杂度 | 空间复杂度 |    优点    | 缺点  |
+| :--------: | :--------: | :--------: | :---: |
+|   O(n²)    |    O(1)    | 想法最简单 | 会TLE |
+
+*代码实现：*
+
+```c++
+    int trap(vector<int>& height) {
+        int len = height.size();
+        int all = 0;
+        for (int i = 0; i < len; ++i) {
+            int lmax = 0;
+            int rmax = 0;
+            for (int j = i; j < len; ++j) rmax = max(rmax, height[j]);
+            for (int j = 0; j <= i; j++) lmax = max(lmax, height[j]);
+            all += min(rmax, lmax) - height[i];
+        }
+        return all;
+    }
+```
+
+*心得：*
+
+​    好想但是过不了leetcode最后一个测试点，毕竟时间复杂度是O(n²)。
+
+
+
+- #### 解法二：双指针
+
+
+
+| 时间复杂度 | 空间复杂度 |   优点   | 缺点 |
+| :--------: | :--------: | :------: | :--: |
+|    O(n)    |    O(1)    | 效率很高 | 难想 |
+
+*代码实现：*
+
+```c++
+int trap(vector<int>& height) {
+        int all = 0;
+        int lmax = 0, rmax = 0;
+        int l = 0, r = height.size() - 1;
+        while (l < r) {
+            if (height[l] < height[r]) {
+                if (height[l] >= lmax) {
+                    lmax = height[l];
+                }
+                else all += lmax - height[l];
+                l++;
+            }
+            else {
+                if (height[r] >= rmax) {
+                    rmax = height[r];
+                }
+                else all += rmax -  height[r];
+                r--;
+            }
+        } 
+        return all;
+    }
+```
+
+*心得：*
+
+​    可以很好的维护当前最高值，双指针还得多练，感觉没理解透彻不能以举一反三。
+
+
+
+---
+
+---
+
+## ==无重复字符的最长字串==
+
+**难度指数：♥ ♥**
+
+
+
+**题目描述：**
+
+​    给定一个字符串 `s` ，请你找出其中**不含有重复字符**的 **最长 子串** 的长度。
+
+ 
+
+**示例 1:**
+
+```
+输入: s = "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。注意 "bca" 和 "cab" 也是正确答案。
+```
+
+
+
+- #### 解法一：暴力循环 + 哈希表
+
+
+
+| 时间复杂度 | 空间复杂度 |  优点  |       缺点        |
+| :--------: | :--------: | :----: | :---------------: |
+|   O(n²)    |    O(1)    | 容易想 | 在数据多的时候TLE |
+
+*代码实现：*
+
+```c++
+int lengthOfLongestSubstring(string s) {
+        int n = s.size(), ans = 0;
+        for (int i = 0; i < n; ++i) {
+            unordered_set<char> seen;
+            for (int j = i; j < n; ++j) {
+                if (seen.count(s[j])) break;     
+                seen.insert(s[j]);
+                ans = max(ans, j - i + 1);        
+            }
+        }
+        return ans;
+    }
+```
+
+*心得：*
+
+​    这里使用了哈希表的count功能，而不是vector的find功能，使得能跑过力扣的测试，然而这种方法效率依然地下，毕竟是O(n²)的复杂度。
+
+
+
+- #### 解法二：滑动窗口
+
+
+
+| 时间复杂度 | 空间复杂度 |   优点   |       缺点       |
+| :--------: | :--------: | :------: | :--------------: |
+|    O(1)    |    O(1)    | 非常高效 | 无法直接返回字串 |
+
+*代码实现：*
+
+```c++
+int lengthOfLongestSubstring(string s) {
+        int ans = 0;
+        int r = -1;
+        int len = s.size();
+        unordered_set<char> us;
+        for (int i = 0; i < len; ++i) {
+            if (i != 0) {
+                us.erase(s[i - 1]);
+            }
+            while (r + 1 < len && !us.count(s[r + 1])) {
+                us.insert(s[r + 1]);
+                r++;
+            }
+            int l = us.size();
+            ans = max(ans, l);
+        }
+        return ans;
+    }
+```
+
+*心得：*
+
+​    经典的窗口滑动问题，算是模板了。
+
+
+
+---
+
+---
+
+## ==找字符串中所有异位词==
+
+**题目难度：♥ ♥ ♥**
+
+
+
+**题目描述：**
+
+​    给定两个字符串 `s` 和 `p`，找到 `s` 中所有 `p` 的 **异位词** 的子串，返回这些子串的起始索引。不考虑答案输出的顺序。
+
+ 
+
+**示例 1:**
+
+```
+输入: s = "cbaebabacd", p = "abc"
+输出: [0,6]
+解释:
+起始索引等于 0 的子串是 "cba", 它是 "abc" 的异位词。
+起始索引等于 6 的子串是 "bac", 它是 "abc" 的异位词。
+```
+
+
+
+- #### 解法一：字符计数 + 滑动窗口
+
+
+
+| 时间复杂度 | 空间复杂度 |       优点       |             缺点              |
+| :--------: | :--------: | :--------------: | :---------------------------: |
+|    O(n)    |    O(1)    | 效率高，实现简单 | *字符集之间若差的过大则消耗多 |
+
+*代码实现*：
+
+```c++
+vector<int> findAnagrams(string s, string p) {
+        int len1 = p.size(), len2 = s.size();
+        vector<int> ans;
+        vector<int> sCnt(26, 0), pCnt(26, 0);
+        if (len1 > len2) return ans;
+        for (auto& it : p) pCnt[it - 'a']++;
+        for (int i = 0; i < len1; ++i) sCnt[s[i] - 'a']++;
+        if (sCnt == pCnt) ans.push_back(0);
+        for (int i = len1; i < len2; ++i) {
+            sCnt[s[i - len1] - 'a']--;
+            sCnt[s[i] - 'a']++;
+            if (sCnt == pCnt) {
+                ans.push_back(i - len1 + 1);
+            }
+        }
+        return ans;
+    }
+```
+
+*心得：*
+
+​    每次比对时只用比较当前各个字母出现的次数即可，无需单独提出来专门sort一遍进行比较。
