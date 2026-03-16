@@ -795,3 +795,363 @@ vector<int> findAnagrams(string s, string p) {
 *心得：*
 
 ​    每次比对时只用比较当前各个字母出现的次数即可，无需单独提出来专门sort一遍进行比较。
+
+
+
+---
+
+---
+
+## ==和为k的子数组==
+
+**题目难度：♥ ♥ ♥**
+
+
+
+**题目描述：**
+
+​    给你一个整数数组 `nums` 和一个整数 `k` ，请你统计并返回 *该数组中和为 `k` 的子数组的个数* 。
+
+子数组是数组中元素的连续非空序列。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,1,1], k = 2
+输出：2
+```
+
+
+
+- #### 解法一：暴力枚举
+
+
+
+| **时间复杂度** | **空间复杂度** |  **优点**  | **缺点**  |
+| :------------: | :------------: | :--------: | :-------: |
+|     O(n²)      |      O(1)      | 直观且好想 | 可能会TLE |
+
+*代码实现：*
+
+```c++
+int subarraySum(vector<int>& nums, int k) {
+        int ans = 0;
+        int len = nums.size();
+        for (int i = 0; i < len; ++i) {
+            int sum = 0;
+            for (int j = i; j >= 0; j--) {
+                sum += nums[j];
+                if (sum == k) ans++;
+            }
+        }
+        return ans;
+    }
+```
+
+*心得：*
+
+​    这种方法暴力遍历所有子数组，代码很简单，然而暴力总是达不到效果的。
+
+
+
+- #### 解法二：哈希表 + 前缀和
+
+
+
+| 时间复杂度 | 空间复杂度 |   优点   |     缺点     |
+| :--------: | :--------: | :------: | :----------: |
+|    O(n)    |    O(n)    | 效率很高 | 不具有通用性 |
+
+*代码实现：*
+
+```c++
+int subarraySum(vector<int>& nums, int k) {
+        int ans = 0;
+        int cur = 0;
+        int len = nums.size();
+        unordered_map <int, int> mp;
+        mp[0] = 1;           //为了记录和刚好等于k的情况
+        for (int i = 0; i < len; ++i) {
+            cur += nums[i];
+            if (mp.find(cur - k) != mp.end()) {
+                ans += mp[cur - k];
+            }
+            mp[cur]++;
+        }
+        return ans;
+    }
+```
+
+*心得：*
+
+​    哈希表可以及时记录当前下标为i时，包括i在内之前有多少cur - k的存在。
+
+
+
+
+
+---
+
+## ==滑动窗口最大化==
+
+**题目难度：♥ ♥ ♥**
+
+
+
+**题目描述：**
+
+​    给你一个整数数组 `nums`，有一个大小为 `k` 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 `k` 个数字。滑动窗口每次只向右移动一位。
+
+返回 *滑动窗口中的最大值* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [1,3,-1,-3,5,3,6,7], k = 3
+输出：[3,3,5,5,6,7]
+解释：
+滑动窗口的位置                最大值
+---------------               -----
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+```
+
+
+
+- #### 解法一：优先队列
+
+
+
+| 时间复杂度 | 空间复杂度 | 优点 |            缺点            |
+| :--------: | :--------: | :--: | :------------------------: |
+|  O(nlogn)  |    O(n)    | 直观 | 时间比较慢，内存消耗比较多 |
+
+*代码实现：*
+
+```c++
+vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        int n = nums.size();
+        vector<int> ans;
+        priority_queue<pair<int, int>> pq;
+        for (int i = 0; i < k; ++i) {
+            pq.emplace(nums[i], i);
+        }
+        ans.push_back(pq.top().first);
+        for (int i = k; i < n; ++i) {
+            pq.emplace(nums[i], i);
+            while (pq.top().second <= i - k) {
+                pq.pop();
+            }
+            ans.push_back(pq.top().first);
+        }
+        return ans;
+    }
+```
+
+*心得：*
+
+​    第一次学优先队列，梳理一下用法。优先队列会自动从大到小排序，top()为最大值，pop()为删除最大值，emplace可将数据列入队列。
+
+
+
+- #### 解法二：单调队列
+
+
+
+| 时间复杂度 | 空间复杂度 |    优点    |      缺点      |
+| :--------: | :--------: | :--------: | :------------: |
+|    O(n)    |    O(k)    | 高效消耗少 | 感觉没什么缺点 |
+
+*代码实现：*
+
+```c++
+vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        int n = nums.size();
+        vector<int> ans;
+        deque<int> dq;
+        for (int i = 0; i < k; ++i) {
+            while (!dq.empty() && nums[i] > nums[dq.back()]) {
+                dq.pop_back();
+            }
+            dq.push_back(i);
+        }
+        ans.push_back(nums[dq.front()]);
+        for (int i = k; i < n; ++i) {
+            while (!dq.empty() && nums[i] > nums[dq.back()]) {
+                dq.pop_back();
+            }
+            dq.push_back(i);
+            while (dq.front() <= i - k) {
+                dq.pop_front();
+            }
+            ans.push_back(nums[dq.front()]);
+        }
+        return ans;
+    }
+```
+
+*心得：*
+
+​    deque的语法也是很少接触。front()和back()为左边到右边，放入数据为push_back()，删除最右边是pop_back()。
+
+
+
+---
+
+---
+
+## ==相交链表==
+
+**题目难度：♥** 
+
+
+
+**题目描述：**
+
+给你两个单链表的头节点 `headA` 和 `headB` ，请你找出并返回两个单链表相交的起始节点。如果两个链表不存在相交节点，返回 `null` 。
+
+图示两个链表在节点 `c1` 开始相交**：**
+
+[![img](https://assets.leetcode.cn/aliyun-lc-upload/uploads/2018/12/14/160_statement.png)](https://assets.leetcode.cn/aliyun-lc-upload/uploads/2018/12/14/160_statement.png)
+
+题目数据 **保证** 整个链式结构中不存在环。
+
+**注意**，函数返回结果后，链表必须 **保持其原始结构** 。
+
+
+
+- #### 解法一：哈希表
+
+
+
+| 时间复杂度 | 空间复杂度 |       优点       |     缺点     |
+| :--------: | :--------: | :--------------: | :----------: |
+|  O(m + n)  |    O(m)    | 实现非常简单好想 | 不是最高效的 |
+
+*代码实现：*
+
+```c++
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        unordered_set <ListNode* > v;
+        struct ListNode* temp = headA;
+        while (temp != NULL) {
+            v.insert(temp);
+            temp = temp -> next;
+        }
+        temp = headB;
+        while (temp != NULL) {
+            if (v.count(temp)) return temp;
+            temp = temp -> next;
+        }
+        return NULL;
+    }
+```
+
+*心得：*
+
+​    以后做查找用哈希表不用vector的find。
+
+
+
+- #### 解法二：双指针
+
+
+
+| 时间复杂度 | 空间复杂度 |  优点  | 缺点 |
+| :--------: | :--------: | :----: | :--: |
+|  O(n + m)  |    O(1)    | 最高效 | 难想 |
+
+*代码实现：*
+
+```c++
+ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode* temp1 = headA;
+        ListNode* temp2 = headB;
+        if (temp1 == NULL || temp2 == NULL) {
+            return NULL;
+        }
+        while (temp1 != temp2) {
+            temp1 = temp1 ? temp1 -> next : headB;
+            temp2 = temp2 ? temp2 -> next : headA;
+        }
+        return temp1;
+    }
+```
+
+*心得：*
+
+​    巧妙根据数学规律解决问题。
+
+
+
+---
+
+---
+
+## ==最大子数组和==
+
+**题目难度：♥ ♥**
+
+
+
+**题目描述：**
+
+​    给你一个整数数组 `nums` ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+**子数组**是数组中的一个连续部分。
+
+ 
+
+**示例 1：**
+
+```
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出：6
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6 。
+```
+
+
+
+- #### 解法一：前缀和 + 贪心
+
+
+
+| 时间复杂度 | 空间复杂度 |   优点   |          缺点          |
+| :--------: | :--------: | :------: | :--------------------: |
+|    O(n)    |    O(n)    | 简洁简单 | 空间复杂度还可以再优化 |
+
+*代码实现：*
+
+```c++
+int maxSubArray(vector<int>& nums) {
+        int len = nums.size();
+        if (len == 1) return nums[0];
+        vector<int> pre(len, 0);
+        pre[0] = nums[0];
+        int ans = nums[0];
+        int minn = nums[0];
+        for (int i = 1; i < len; ++i) {
+            pre[i] = pre[i - 1] + nums[i];
+            if (pre[i] - minn > pre[i]) {
+                ans = ans > pre[i] - minn ? ans : pre[i] - minn;
+            }
+            else {
+                ans = ans > pre[i] ? ans : pre[i];
+            }
+            minn = pre[i] < minn ? pre[i] : minn;
+        }
+        return ans;
+    }
+```
+
+*心得：*
+
+​    这里的最小值更新一定要放在答案更新后面，否则当前前缀和为最小值的时候会出现自己减自己的情况。
