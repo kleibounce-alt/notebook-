@@ -1155,3 +1155,84 @@ int maxSubArray(vector<int>& nums) {
 *心得：*
 
 ​    这里的最小值更新一定要放在答案更新后面，否则当前前缀和为最小值的时候会出现自己减自己的情况。
+
+
+
+---
+
+---
+
+## ==合并区间==
+
+**题目难度：♥ ♥** 
+
+
+
+**题目描述：**
+
+​      以数组 `intervals` 表示若干个区间的集合，其中单个区间为 `intervals[i] = [starti, endi]` 。请你合并所有重叠的区间，并返回 *一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间* 。
+
+ 
+
+**示例 1：**
+
+```
+输入：intervals = [[1,3],[2,6],[8,10],[15,18]]
+输出：[[1,6],[8,10],[15,18]]
+解释：区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].
+```
+
+
+
+- #### 解法一：排序 + 贪心
+
+
+
+| 时间复杂度 | 空间复杂度 |   优点   |    缺点    |
+| :--------: | :--------: | :------: | :--------: |
+|  O(nlogn)  |    O(1)    | 效率较高 | 普遍性不高 |
+
+*代码实现：*
+
+```c++
+vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        int len = intervals.size();
+        //按字典数排序
+        if (len == 1) return intervals;
+        sort (intervals.begin(), intervals.end());
+        vector<vector<int>> ans;
+        int l = intervals[0][0], r = intervals[0][1];
+        for (int i = 1; i < len; ++i) {
+            if (l == intervals[i][0]) {
+                r = intervals[i][1];
+            }
+            else {
+                if (r >= intervals[i][0]) {
+                    if (r > intervals[i][1]) continue;
+                    else {
+                        r = intervals[i][1];
+                    }
+                }
+                else {
+                    if (r < intervals[i][0]) {
+                        vector<int> temp(2, 0);
+                        temp[0] = l;
+                        temp[1] = r;
+                        ans.push_back(temp);
+                        l = intervals[i][0];
+                        r = intervals[i][1];
+                    }
+                }
+            }
+        }
+        vector<int> temp(2, 0);
+        temp[0] = l;
+        temp[1] = r;
+        ans.push_back(temp);
+        return ans;
+    }
+```
+
+*心得：*
+
+​      我的想法几乎和力扣官方答案一样，但还是冗余了很多不必要的代码。
